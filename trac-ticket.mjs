@@ -11,16 +11,13 @@
  *   node trac-ticket.mjs 66079 --json     # JSON
  *   node trac-ticket.mjs https://meta.trac.wordpress.org/ticket/8202   # any *.trac.wordpress.org
  *
- * Playwright is resolved from a WordPress checkout's node_modules (set
- * WP_DEVELOP_DIR to override). Run `npx playwright install chromium` there once.
- * The challenge cookie is kept in ~/.cache/trac-ticket so repeat runs are fast.
+ * Setup: `npm install` then `npx playwright install chromium` (one-time browser
+ * download). The challenge cookie is kept in ~/.cache/trac-ticket so repeat runs
+ * are fast.
  */
-import { createRequire } from 'node:module';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
-
-const wpDir = process.env.WP_DEVELOP_DIR || join( homedir(), 'Sites/wordpress-develop-svn' );
-const { chromium } = createRequire( join( wpDir, 'package.json' ) )( 'playwright' );
+import { chromium } from 'playwright';
 
 const args = process.argv.slice( 2 );
 const asJson = args.includes( '--json' );
@@ -33,7 +30,16 @@ const id = ( target.match( /(\d+)\s*$/ ) || [] )[ 1 ];
 const host = target.startsWith( 'http' ) ? new URL( target ).host : 'core.trac.wordpress.org';
 const url = `https://${ host }/ticket/${ id }`;
 
-const context = await chromium.launchPersistentContext( join( homedir(), '.cache/trac-ticket' ), { headless: true } );
+let context;
+try {
+	context = await chromium.launchPersistentContext( join( homedir(), '.cache/trac-ticket' ), { headless: true } );
+} catch ( e ) {
+	if ( /Executable doesn't exist/.test( e.message ) ) {
+		console.error( 'Chromium is not installed. Run: npx playwright install chromium' );
+		process.exit( 1 );
+	}
+	throw e;
+}
 const page = context.pages()[ 0 ] || ( await context.newPage() );
 await page.goto( url, { waitUntil: 'domcontentloaded' } );
 try {

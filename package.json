@@ -5,5 +5,7 @@
   "license": "MIT",
   "type": "module",
   "bin": { "trac-ticket": "./trac-ticket.mjs" },
-  "scripts": { "ticket": "node ./trac-ticket.mjs" }
+  "scripts": { "ticket": "node ./trac-ticket.mjs" },
+  "dependencies": { "playwright": "^1.61.1" },
+  "engines": { "node": ">=20" }
 }
