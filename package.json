@@ -1,0 +1,9 @@
+{
+  "name": "trac-ticket",
+  "version": "1.0.0",
+  "description": "Read a core.trac.wordpress.org ticket from the command line via headless Chromium.",
+  "license": "MIT",
+  "type": "module",
+  "bin": { "trac-ticket": "./trac-ticket.mjs" },
+  "scripts": { "ticket": "node ./trac-ticket.mjs" }
+}
